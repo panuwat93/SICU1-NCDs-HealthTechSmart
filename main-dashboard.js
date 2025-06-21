@@ -1,3 +1,4 @@
+import { Database } from './db.js';
 import { ncdsData } from './ncds-data.js';
 import { exerciseData } from './exercise-data.js';
 import { foodData } from './food-data.js';
@@ -498,4 +499,6 @@ function initDashboard() {
   })();
 }
 
-initDashboard(); 
+document.addEventListener('DOMContentLoaded', () => {
+  initDashboard();
+}); 

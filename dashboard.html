@@ -1,10 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#145377">
+    <title>SICU1 NCDs HealthTech - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>เมนู</h3>
+            <button id="close-sidebar-btn" class="icon-btn">&times;</button>
+        </div>
+        <div class="profile-summary">
+            <img src="assets/default-profile.png" alt="Profile Picture" id="sidebar-profile-pic" class="profile-pic-small">
+            <span id="sidebar-username"></span>
+        </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" data-panel="dashboard"><i class="fas fa-home"></i> <span>หน้าหลัก</span></a>
             <a href="#" class="nav-item" data-panel="ncds"><i class="fas fa-book-medical"></i> <span>ความรู้เรื่องโรค</span></a>
+            <a href="#" class="nav-item" data-panel="health-form"><i class="fas fa-file-medical-alt"></i> <span>ข้อมูลสุขภาพ</span></a>
+            <a href="#" class="nav-item" data-panel="bmi-calculator"><i class="fas fa-calculator"></i> <span>คำนวณ BMI</span></a>
+            <a href="#" class="nav-item" data-panel="exercise-rec"><i class="fas fa-running"></i> <span>คำแนะนำออกกำลังกาย</span></a>
+            <a href="#" class="nav-item" data-panel="food-rec"><i class="fas fa-utensils"></i> <span>คำแนะนำอาหาร</span></a>
             <a href="#" class="nav-item" data-panel="change-log"><i class="fas fa-chart-line"></i> <span>บันทึกการเปลี่ยนแปลง</span></a>
             <a href="#" class="nav-item" data-panel="emergency"><i class="fas fa-phone-alt"></i> <span>เบอร์โทรฉุกเฉิน</span></a>
             <a href="#" id="logout-btn" class="nav-item"><i class="fas fa-sign-out-alt"></i> <span>ออกจากระบบ</span></a>
         </nav>
     </div>
 
-    <main id="main-content"> 
+    <main id="main-content">
+        <header class="main-header">
+            <button id="menu-toggle-btn" class="icon-btn"><i class="fas fa-bars"></i></button>
+            <h1 class="header-title">SICU1 NCDs HealthTech</h1>
+        </header>
+
+        <div id="dashboard" class="panel">
+            <div class="welcome-section">
+                <div class="profile-main">
+                    <img src="assets/default-profile.png" alt="Profile Picture" id="main-profile-pic" class="profile-pic-large">
+                    <input type="file" id="profile-pic-upload" accept="image/*" style="display: none;">
+                </div>
+                <div class="welcome-text">
+                    <h2>สวัสดี, <span id="user-fullname"></span></h2>
+                    <p id="current-date"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="ncds" class="panel" style="display:none;">
+            <h2 class="panel-title">ความรู้เรื่องโรคไม่ติดต่อเรื้อรัง (NCDs)</h2>
+            <div id="ncds-content" class="panel-content">
+                <!-- NCDs data will be loaded here by JavaScript -->
+            </div>
+        </div>
+
+        <div id="health-form" class="panel" style="display:none;">
+            <h2 class="panel-title">ข้อมูลสุขภาพส่วนตัว</h2>
+            <div class="panel-content">
+                <form id="user-health-form">
+                    <label for="chronic-diseases">โรคประจำตัว:</label>
+                    <textarea id="chronic-diseases" rows="3"></textarea>
+                    <label for="surgeries">ประวัติการผ่าตัด:</label>
+                    <textarea id="surgeries" rows="3"></textarea>
+                    <label for="allergies">ประวัติการแพ้ยา/แพ้อาหาร:</label>
+                    <textarea id="allergies" rows="3"></textarea>
+                    <button type="submit">บันทึกข้อมูล</button>
+                </form>
+                <p id="health-form-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="bmi-calculator" class="panel" style="display:none;">
+             <h2 class="panel-title">คำนวณดัชนีมวลกาย (BMI)</h2>
+             <div class="panel-content">
+                <form id="bmi-form">
+                    <label for="weight">น้ำหนัก (กก.):</label>
+                    <input type="number" id="weight" step="0.1" required>
+                    <label for="height">ส่วนสูง (ซม.):</label>
+                    <input type="number" id="height" required>
+                    <button type="submit">คำนวณ</button>
+                </form>
+                <div id="bmi-result-section" style="display:none;">
+                    <h3>ผลลัพธ์ของคุณ</h3>
+                    <p id="bmi-value"></p>
+                    <p id="bmi-analysis"></p>
+                </div>
+                <p id="bmi-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="exercise-rec" class="panel" style="display:none;">
+            <h2 class="panel-title">คำแนะนำการออกกำลังกาย</h2>
+            <div id="exercise-content" class="panel-content"></div>
+        </div>
+
+        <div id="food-rec" class="panel" style="display:none;">
+            <h2 class="panel-title">ตัวอย่างเมนูอาหาร 7 วัน</h2>
+            <div id="food-content" class="panel-content"></div>
+        </div>
+
+        <div id="change-log" class="panel" style="display:none;">
+            <h2 class="panel-title">บันทึกการเปลี่ยนแปลง</h2>
+            <div class="panel-content">
+                <form id="log-entry-form">
+                    <input type="number" id="log-weight" placeholder="น้ำหนัก (กก.)" step="0.1">
+                    <input type="number" id="log-waist" placeholder="รอบเอว (ซม.)" step="0.1">
+                    <input type="number" id="log-chest" placeholder="รอบอก (ซม.)" step="0.1">
+                    <button type="submit">บันทึก</button>
+                </form>
+                <div class="chart-container">
+                    <canvas id="change-log-chart"></canvas>
+                </div>
+                <button id="export-excel-btn">ส่งออกเป็น Excel</button>
+            </div>
+        </div>
+
+        <div id="emergency" class="panel" style="display:none;">
+            <h2 class="panel-title">เบอร์โทรฉุกเฉิน</h2>
+            <ul class="emergency-list panel-content">
+                <li><a href="tel:1669"><span>สถาบันการแพทย์ฉุกเฉินแห่งชาติ</span><i class="fas fa-phone-alt"></i>1669</a></li>
+                <li><a href="tel:191"><span>แจ้งเหตุด่วน-เหตุร้าย</span><i class="fas fa-phone-alt"></i>191</a></li>
+                <li><a href="tel:1154"><span>ตำรวจท่องเที่ยว</span><i class="fas fa-phone-alt"></i>1154</a></li>
+                <li><a href="tel:1323"><span>สายด่วนสุขภาพจิต</span><i class="fas fa-phone-alt"></i>1323</a></li>
+                <li><a href="tel:023286900"><span>โรงพยาบาลสมุทรปราการ</span><i class="fas fa-phone-alt"></i>02-328-6900</a></li>
+            </ul>
+        </div>
+    </main>
+    
+    <script type="module" src="main-dashboard.js"></script>
+</body>
+</html> 
