@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#145377">
+  <title>SICU1 NCDs HealthTech - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <img src="assets/logo.png" alt="Logo โรงพยาบาลสมุทรปราการ" class="logo">
+    <h1 class="app-title">SICU1 NCDs HealthTech</h1>
+    
+    <div class="form-toggle">
+      <button id="show-login" class="active">เข้าสู่ระบบ</button>
+      <button id="show-register">สมัครสมาชิก</button>
+    </div>
+    
+    <form id="login-form" autocomplete="off">
+      <input type="text" id="login-username" placeholder="ชื่อผู้ใช้งาน" required>
+      <input type="password" id="login-password" placeholder="รหัสผ่าน" required>
+      <button type="submit">เข้าสู่ระบบ</button>
+    </form>
+    
+    <form id="register-form" style="display:none;" autocomplete="off">
+      <input type="text" id="reg-fullname" placeholder="ชื่อ-นามสกุล" required>
+      <input type="number" id="reg-age" placeholder="อายุ" min="1" max="120" required>
+      <input type="text" id="reg-username" placeholder="ตั้งชื่อผู้ใช้งาน" required>
+      <input type="password" id="reg-password" placeholder="ตั้งรหัสผ่าน" required>
+      <button type="submit">สมัครสมาชิก</button>
+    </form>
+    
+    <div id="form-message"></div>
+
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

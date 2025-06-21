@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17628c">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <title>SICU1 NCDs HealthTech</title>
+  <style>
+    body { background: #f6fafd; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: #17628c; color: #fff; z-index: 10; transform: translateX(-100%); transition: transform 0.2s; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar .logo { width: 60px; margin: 24px auto 12px auto; display: block; }
+    .sidebar .menu { list-style: none; padding: 0; margin: 0; }
+    .sidebar .menu li { padding: 16px 24px; cursor: pointer; border-bottom: 1px solid #145377; font-size: 1.08rem; }
+    .sidebar .menu li.active, .sidebar .menu li:hover { background: #145377; }
+    .sidebar .close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+    .main-content { margin-left: 0; transition: margin-left 0.2s; min-height: 100vh; }
+    .main-content.shift { margin-left: 220px; }
+    .topbar { display: flex; align-items: center; background: #fff; padding: 12px 16px; box-shadow: 0 2px 8px rgba(23,98,140,0.07); }
+    .menu-btn { background: none; border: none; font-size: 1.7rem; color: #17628c; margin-right: 12px; cursor: pointer; }
+    .profile-pic { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid #17628c; cursor: pointer; }
+    .greeting { font-size: 1.1rem; color: #17628c; font-weight: 600; margin-bottom: 2px; }
+    .date { color: #666; font-size: 0.98rem; margin-bottom: 10px; }
+    .profile-section { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .content-area { padding: 18px 10px; }
+    @media (max-width: 600px) {
+      .sidebar { width: 80vw; min-width: 180px; }
+      .main-content.shift { margin-left: 80vw; }
+      .profile-section { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <button class="close-btn" id="closeSidebar">×</button>
+    <img src="assets/logo.png" class="logo" alt="logo">
+    <ul class="menu">
+      <li class="active" data-menu="ncds">NCDs</li>
+      <li data-menu="health">ข้อมูลสุขภาพ</li>
+      <li data-menu="bmi">การคำนวณ BMI</li>
+      <li data-menu="exercise">แนะนำการออกกำลังกาย</li>
+      <li data-menu="food">แนะนำอาหาร</li>
+      <li data-menu="change">บันทึกการเปลี่ยนแปลง</li>
+      <li data-menu="emergency">เบอร์โทรฉุกเฉิน</li>
+    </ul>
+  </div>
+  <div class="main-content" id="mainContent">
+    <div class="topbar">
+      <button class="menu-btn" id="openSidebar">☰</button>
+      <span style="font-weight:600;color:#17628c;">SICU1 NCDs HealthTech</span>
+    </div>
+    <div class="content-area">
+      <div class="profile-section">
+        <img src="assets/profile-default.png" id="profilePic" class="profile-pic" alt="profile" title="เปลี่ยนรูปโปรไฟล์">
+        <div>
+          <div class="greeting" id="greeting">สวัสดี, ...</div>
+          <div class="date" id="currentDate"></div>
+        </div>
+      </div>
+      <div id="menuContent">
+        <!-- เนื้อหาแต่ละเมนูจะแสดงที่นี่ -->
+        <div id="ncds" class="menu-panel">ข้อมูลโรค NCDs</div>
+        <div id="health" class="menu-panel" style="display:none">
+          <h2 class="panel-title">ข้อมูลสุขภาพ</h2>
+          <div id="health-display">
+            <p><b>โรคประจำตัว:</b> <span id="display-disease">-</span></p>
+            <p><b>ประวัติการบาดเจ็บ/ผ่าตัด:</b> <span id="display-surgery">-</span></p>
+            <p><b>ประวัติการแพ้ยา:</b> <span id="display-drug-allergy">-</span></p>
+            <p><b>ประวัติการแพ้อาหาร:</b> <span id="display-food-allergy">-</span></p>
+            <button id="edit-health-btn" class="btn-primary">แก้ไขข้อมูล</button>
+          </div>
+          <form id="health-form" style="display:none;">
+            <label for="disease">โรคประจำตัว (ถ้าไม่มีให้ใส่ -):</label>
+            <input type="text" id="disease" class="form-input">
+            <label for="surgery">ประวัติการบาดเจ็บ/ผ่าตัด (ถ้าไม่มีให้ใส่ -):</label>
+            <input type="text" id="surgery" class="form-input">
+            <label for="drug-allergy">ประวัติการแพ้ยา (ถ้าไม่มีให้ใส่ -):</label>
+            <input type="text" id="drug-allergy" class="form-input">
+            <label for="food-allergy">ประวัติการแพ้อาหาร (ถ้าไม่มีให้ใส่ -):</label>
+            <input type="text" id="food-allergy" class="form-input">
+            <button type="submit" class="btn-primary">บันทึกข้อมูล</button>
+            <button type="button" id="cancel-health-btn" class="btn-secondary">ยกเลิก</button>
+          </form>
+        </div>
+        <div id="bmi" class="menu-panel" style="display:none">
+          <h2 class="panel-title">คำนวณค่าดัชนีมวลกาย (BMI)</h2>
+          <form id="bmi-form">
+            <label for="height">ส่วนสูง (ซม.):</label>
+            <input type="number" id="height" class="form-input" min="100" max="250" required>
+            <label for="weight">น้ำหนัก (กก.):</label>
+            <input type="number" id="weight" class="form-input" min="30" max="300" step="0.1" required>
+            <button type="submit" id="save-bmi-btn" class="btn-primary">บันทึกและคำนวณ</button>
+          </form>
+          <div id="bmi-result" style="margin-top: 16px;"></div>
+          <p id="bmi-message" style="color: #d32f2f;"></p>
+        </div>
+        <div id="exercise" class="menu-panel" style="display:none">
+          <h2 class="panel-title">แนะนำการออกกำลังกาย</h2>
+          <div id="exercise-content">
+            <p>กรุณาบันทึกข้อมูล BMI ก่อน เพื่อรับคำแนะนำที่เหมาะสม</p>
+          </div>
+        </div>
+        <div id="food" class="menu-panel" style="display:none">
+          <h2 class="panel-title">แนะนำอาหาร</h2>
+          <div id="food-content">
+            <p>กรุณาบันทึกข้อมูล BMI ก่อน เพื่อรับคำแนะนำที่เหมาะสม</p>
+          </div>
+        </div>
+        <div id="change" class="menu-panel" style="display:none">
+          <h2 class="panel-title">บันทึกการเปลี่ยนแปลง</h2>
+          <form id="change-log-form">
+            <label for="log-date">วันที่บันทึก:</label>
+            <input type="date" id="log-date" class="form-input" required>
+            <label for="log-weight">น้ำหนัก (กก.):</label>
+            <input type="number" step="0.1" id="log-weight" class="form-input" required>
+            <label for="log-chest">รอบอก (ซม.):</label>
+            <input type="number" step="0.1" id="log-chest" class="form-input" required>
+            <label for="log-waist">รอบเอว (ซม.):</label>
+            <input type="number" step="0.1" id="log-waist" class="form-input" required>
+            <button type="submit" class="btn-primary">บันทึก</button>
+          </form>
+          <div class="change-log-controls">
+            <label for="month-select">เลือกเดือน:</label>
+            <select id="month-select" class="form-input"></select>
+            <button id="export-excel-btn" class="btn-secondary">Save เป็น Excel</button>
+          </div>
+          <canvas id="change-chart"></canvas>
+        </div>
+        <div id="emergency" class="menu-panel" style="display:none">
+          <h2 class="panel-title">เบอร์โทรฉุกเฉิน</h2>
+          <ul class="emergency-list">
+            <li><a href="tel:1669"><span>สถาบันการแพทย์ฉุกเฉินแห่งชาติ (เจ็บป่วยฉุกเฉิน)</span><strong>1669</strong></a></li>
+            <li><a href="tel:027018132"><span>โรงพยาบาลสมุทรปราการ</span><strong>0-2701-8132</strong></a></li>
+            <li><a href="tel:191"><span>เหตุด่วนเหตุร้าย</span><strong>191</strong></a></li>
+            <li><a href="tel:199"><span>แจ้งเหตุไฟไหม้ / ดับเพลิง</span><strong>199</strong></a></li>
+            <li><a href="tel:1155"><span>ตำรวจท่องเที่ยว</span><strong>1155</strong></a></li>
+          </ul>
+          <p class="emergency-note">แตะที่เบอร์เพื่อโทรออก</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="main-dashboard.js" type="module"></script>
+</body>
+</html> 

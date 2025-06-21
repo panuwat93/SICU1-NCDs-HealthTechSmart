@@ -1,0 +1,21 @@
+{
+  "name": "SICU1 NCDs HealthTech",
+  "short_name": "SICU1 NCDs",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f6fafd",
+  "theme_color": "#17628c",
+  "description": "แอปพลิเคชันให้ข้อมูลเกี่ยวกับโรคไม่ติดต่อเรื้อรัง (NCDs) สำหรับประชาชนไทย",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
